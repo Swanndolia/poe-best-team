@@ -8,12 +8,9 @@ from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.chrome.options import Options
 from fake_useragent import UserAgent
-from pymongo import MongoClient
+from google.cloud import storage
 
-client = MongoClient(host=os.environ.get("SC_CONFIG_MONGODB_SERVER"), username=os.environ.get(
-    "SC_CONFIG_MONGODB_ADMINUSERNAME"), password=os.environ.get("SC_CONFIG_MONGODB_ADMINPASSWORD"))
-
-db = client.malt
+BUCKET = "scraper_malt"
 
 
 def run_thread(arg):
@@ -37,17 +34,17 @@ def run_thread(arg):
     driver.maximize_window()
     url = "https://www.malt.fr/s?q=" + arg
     driver.get(url)
-    with open('cookies.json', 'r', newline='') as inputdata:
+    with open(os.path.dirname(__file__) + '/cookies.json', 'r', newline='') as inputdata:
         cookies = json.load(inputdata)
     for cookie in cookies:
         cookie.pop('sameSite')
         driver.add_cookie(cookie)
     time.sleep(5)
     driver.get(url)
-    scrap(driver, arg)
+    scrap(driver, arg, BUCKET)
 
 
-def scrap(driver, techno):
+def scrap(driver, techno, BUCKET):
     time.sleep(6)
     elements = driver.find_elements_by_class_name(
         "profile-card.freelance-linkable")
@@ -56,22 +53,33 @@ def scrap(driver, techno):
         data = element.get_attribute("outerHTML")
         name = element.find_element_by_class_name(
             "profile-card-header__full-name").text
-        data_named = {"name": name.replace(
-            " ", "_") + "_" + techno, "content": json.dumps(data)}
-        collection = db[techno]
-        collection.insert_one(data_named)
-        # send data_named to somethig but i have no idea of what
-    next_page = driver.find_element_by_class_name("c-pagination__next")
-    time.sleep(5)
-    ActionChains(driver).move_to_element(
-        next_page).click(next_page).perform()
-    scrap(driver, techno)
+        data_json = json.dumps(data)
+        blob_path = name.replace(" ", "_") + "_" + techno
+        storage_client = storage.Client()
+        if storage_client.bucket(BUCKET).exists():
+            mybucket = storage_client.get_bucket(BUCKET)
+        else:
+            mybucket = storage_client.create_bucket(BUCKET)
+        myblob = mybucket.blob(blob_path)
+        myblob.upload_from_string(data_json)
+        print(myblob)
+    try:
+        next_page = driver.find_element_by_class_name("c-pagination__next")
+        time.sleep(5)
+        ActionChains(driver).move_to_element(
+            next_page).click(next_page).perform()
+        scrap(driver, techno, BUCKET)
+    except:
+        sys.exit()
 
 
-for arg in sys.argv:
-    if(arg != "main.py"):
-        try:
-            thread = Thread(target=run_thread, args=(arg,))
-            thread.start()
-        except:
-            print("Error: unable to start thread")
+if(__name__ == "__main__"):
+    with open(os.path.dirname(__file__) + '/techno.txt') as f:
+        lines = f.readlines()
+        for techno in lines:
+            try:
+                techno = techno.rstrip("\n")
+                thread = Thread(target=run_thread, args=(techno,))
+                thread.start()
+            except:
+                print("Error: unable to start thread")

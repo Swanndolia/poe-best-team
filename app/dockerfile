@@ -6,9 +6,10 @@ WORKDIR /app
 
 COPY . .
 
+RUN export GOOGLE_APPLICATION_CREDENTIALS=""
 RUN apt-get update && apt-get install python3-distutils xvfb chromium-browser -y
 RUN wget https://bootstrap.pypa.io/get-pip.py
 RUN python3 get-pip.py
 RUN python3 -m pip install -r requirements.txt
 
-CMD ["python3", "main.py", "java", "python", "mysql", "mongo", "elastic", "kafka", "spark", "docker"]
+CMD ["python3", "main.py"]
