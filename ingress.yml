@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+# Permet l'accès vers l'exterieur. Penser à démarrer le Ingress
+
+metadata:
+  name: mongodb-ingress
+  namespace: mongo-namespace
+
+spec:
+  rules:
+    - host: myapp.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: mongodb-express-service
+                port:
+                  number: 8081

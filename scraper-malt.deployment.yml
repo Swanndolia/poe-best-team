@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: scraper-malt-deployment
+  namespace: mongo-namespace
+  labels:
+    app: scraper
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: scraper
+  template:
+    metadata:
+      labels:
+        app: scraper
+    spec:
+      containers:
+        - name: scraper-malt
+          image: pparroche/scraper_malt
+          volumeMounts:
+            - mountPath: /dev/shm
+              name: dshm
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          env:                                       
+            - name: MONGO_URI
+              valueFrom:
+                configMapKeyRef:                       # provient d'un ConfigMap
+                  name: mongo-configmap
+                  key: mongo_uri                      # provient d'un ConfigMap
+      volumes:
+        - name: dshm
+          emptyDir:
+            medium: Memory
+
+
