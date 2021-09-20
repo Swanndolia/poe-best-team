@@ -7,4 +7,4 @@ metadata:
   namespace: mongo-namespace
 data:
   mongo_url: mongo-service
-  mongo_uri: mongo://root:example@mongo:27017/
+  mongo_uri: mongodb://root:example@mongo:27017/
