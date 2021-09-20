@@ -6,12 +6,9 @@ WORKDIR /app
 
 COPY . .
 
-RUN apt-get update && apt-get install python3-distutils -y
-RUN apt-get install -y xvfb
-RUN apt-get install -y chromium-browser
+RUN apt-get update && apt-get install python3-distutils xvfb chromium-browser -y
 RUN wget https://bootstrap.pypa.io/get-pip.py
 RUN python3 get-pip.py
-
 RUN python3 -m pip install -r requirements.txt
 
-CMD ["python3", "main.py", "java", "js", "python", "css"]
+CMD ["python3", "main.py", "java", "python", "mysql", "mongo", "elastic", "kafka", "spark", "docker"]
