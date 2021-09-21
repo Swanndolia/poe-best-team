@@ -1,0 +1,17 @@
+java
+python
+docker
+spark
+elastic
+kafka
+mongo
+mysql
+kube
+javascript
+cassandra
+redis
+gcp
+aws
+azure
+nodejs
+html

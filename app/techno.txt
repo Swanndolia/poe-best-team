@@ -1,8 +1,0 @@
-java
-python
-docker
-spark
-elastic
-kafka
-mongo
-mysql

@@ -1,10 +1,9 @@
+minikube delete --all
+minikube start
 minikube addons enable ingress
 kubectl delete -A ValidatingWebhookConfiguration ingress-nginx-admission
 kubectl apply -f ./ingress.yml
 kubectl apply -f ./namespace.yml
 kubectl apply -f ./configmap.yml
 kubectl apply -f ./secret.yml
-kubectl apply -f ./mongo.stateful.yml
-kubectl apply -f ./mongo-express.deployment.yml
-kubectl apply -f ./scraper-malt.deployment.yml
-minikube service -n mongo-namespace mongo-express-service --url 
+python3 ./programatic_scheduled_jobs/__main__.py

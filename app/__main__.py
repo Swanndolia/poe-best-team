@@ -74,12 +74,10 @@ def scrap(driver, techno, BUCKET):
 
 
 if(__name__ == "__main__"):
-    with open(os.path.dirname(__file__) + '/techno.txt') as f:
-        lines = f.readlines()
-        for techno in lines:
+    for arg in sys.argv:
+        if(arg != "main.py"):
             try:
-                techno = techno.rstrip("\n")
-                thread = Thread(target=run_thread, args=(techno,))
+                thread = Thread(target=run_thread, args=(arg,))
                 thread.start()
             except:
                 print("Error: unable to start thread")
