@@ -12,6 +12,9 @@ from google.cloud import storage
 
 BUCKET = "scraper_malt"
 
+def normalize_text(text):
+    text = text.strip().replace("é", "e").replace("è", "e").replace("à", "a").replace("ê", "e").replace("ù", "u")
+    return text.lower()
 
 def run_thread(arg):
     options = Options()
@@ -39,32 +42,37 @@ def run_thread(arg):
     for cookie in cookies:
         cookie.pop('sameSite')
         driver.add_cookie(cookie)
-    time.sleep(5)
+    time.sleep(3)
     driver.get(url)
     scrap(driver, arg, BUCKET)
 
 
 def scrap(driver, techno, BUCKET):
-    time.sleep(6)
+    time.sleep(2)
     elements = driver.find_elements_by_class_name(
         "profile-card.freelance-linkable")
     for element in elements:
         time.sleep(1)
-        data = element.get_attribute("outerHTML")
-        name = element.find_element_by_class_name(
-            "profile-card-header__full-name").text
+        comps = element.find_elements_by_css_selector("li.m-tag.m-tag_secondary.m-tag_small span")
+        data = {}
+        data["name"] = normalize_text(element.find_element_by_class_name(
+            "profile-card-header__full-name").text)
+        data["prix"] = element.find_element_by_css_selector("p.js-trigger.c-tooltip_target.profile-card-price__rate strong").text.replace("€", "")
+        data["tech"] = [normalize_text(comp.get_attribute("textContent")) for comp in comps]
+        data["metier"] = normalize_text(element.find_element_by_class_name("profile-card-body__headline.profile-card-body__headline__capitalized").text)
         data_json = json.dumps(data)
-        blob_path = name.replace(" ", "_") + "_" + techno #replace with hash
-        storage_client = storage.Client()
-        if storage_client.bucket(BUCKET).exists():
-            mybucket = storage_client.get_bucket(BUCKET)
-        else:
-            mybucket = storage_client.create_bucket(BUCKET)
-        myblob = mybucket.blob(blob_path)
-        myblob.upload_from_string(data_json)
+        print(data_json)
+        # blob_path = name.replace(" ", "_") + "_" + techno #replace with hash
+        # storage_client = storage.Client()
+        # if storage_client.bucket(BUCKET).exists():
+        #     mybucket = storage_client.get_bucket(BUCKET)
+        # else:
+        #     mybucket = storage_client.create_bucket(BUCKET)
+        # myblob = mybucket.blob(blob_path)
+        # myblob.upload_from_string(data_json)
     try:
         next_page = driver.find_element_by_class_name("c-pagination__next")
-        time.sleep(5)
+        time.sleep(1)
         ActionChains(driver).move_to_element(
             next_page).click(next_page).perform()
         scrap(driver, techno, BUCKET)
@@ -80,3 +88,5 @@ if(__name__ == "__main__"):
                 thread.start()
             except:
                 print("Error: unable to start thread")
+    thread = Thread(target=run_thread, args=("python",))
+    thread.start()
