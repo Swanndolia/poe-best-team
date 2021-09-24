@@ -4,9 +4,9 @@ import math
 import time
 from kubernetes import client, config, watch
 
-JOB_NAME = "scraper-malt"
-NAMESPACE = "mongo-namespace"
-IMAGE = "swanndolia/scraper-malt"
+JOB_NAME = "scraper"
+NAMESPACE = "kube-namespace"
+IMAGE = "swanndolia/scraper-"
 KUBE_CONFIG_PATH = os.path.expanduser('~/.kube/config')
 
 
@@ -34,6 +34,8 @@ def create_job(api_instance, job):
 if(__name__ == "__main__"):
     config.load_kube_config(KUBE_CONFIG_PATH)
     batch_v1 = client.BatchV1Api()
+
+    with open(os.path.dirname(__file__) + '/github.txt') as f:
 
     with open(os.path.dirname(__file__) + '/techno.txt') as f:
         lines = f.readlines()

@@ -34,7 +34,7 @@ def run_thread(arg):
     driver.maximize_window()
     url = "https://www.malt.fr/s?q=" + arg
     driver.get(url)
-    with open(os.path.dirname(__file__) + '/cookies.json', 'r', newline='') as inputdata:
+    with open('cookies.json', 'r', newline='') as inputdata:
         cookies = json.load(inputdata)
     for cookie in cookies:
         cookie.pop('sameSite')
@@ -54,7 +54,7 @@ def scrap(driver, techno, BUCKET):
         name = element.find_element_by_class_name(
             "profile-card-header__full-name").text
         data_json = json.dumps(data)
-        blob_path = name.replace(" ", "_") + "_" + techno
+        blob_path = name.replace(" ", "_") + "_" + techno #replace with hash
         storage_client = storage.Client()
         if storage_client.bucket(BUCKET).exists():
             mybucket = storage_client.get_bucket(BUCKET)
@@ -62,7 +62,6 @@ def scrap(driver, techno, BUCKET):
             mybucket = storage_client.create_bucket(BUCKET)
         myblob = mybucket.blob(blob_path)
         myblob.upload_from_string(data_json)
-        print(myblob)
     try:
         next_page = driver.find_element_by_class_name("c-pagination__next")
         time.sleep(5)
@@ -75,7 +74,7 @@ def scrap(driver, techno, BUCKET):
 
 if(__name__ == "__main__"):
     for arg in sys.argv:
-        if(arg != "main.py"):
+        if(arg != "__main__.py"):
             try:
                 thread = Thread(target=run_thread, args=(arg,))
                 thread.start()
