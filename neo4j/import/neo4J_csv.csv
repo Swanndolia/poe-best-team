@@ -1,0 +1,11 @@
+﻿id,technologie,metier
+1,spark; kafka; java,Lead Data Engineer
+2,kafka; hadoop; flume,Data & cloud architecte
+3,java; spark; kafka,architecte
+4,kafka; python; go,devops
+5,aws; azure; kafka,cloud architecte
+6,kafka; spring; scala,architecte
+7,kafka; python; linux,architecte
+8,rabbitMQ; PHP; symphony,developper
+9,rabbitMQ; PHP; symphony,developper
+10,rabbitMQ; java; spring,developper
